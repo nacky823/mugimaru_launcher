@@ -79,7 +79,7 @@ def generate_launch_description():
         output='screen',
     )
     exec_ekf=ExecuteProcess(
-        cmd=[ 'ros2', 'launch', 'ekf_localizer', 'sim_iscas.launch.py' ],
+        cmd=[ 'ros2', 'launch', 'ekf_localizer', 'sim_iscas.launch.xml' ],
         output='screen',
     )
     exec_nav2=ExecuteProcess(
