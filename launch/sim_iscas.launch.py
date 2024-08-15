@@ -59,27 +59,27 @@ def generate_launch_description():
         output='screen',
     )
     exec_twist=ExecuteProcess(
-        cmd=[ 'ros2', 'launch', 'ros2_odometry_twist_converter', 'odom_to_twist_cov_stamp.launch.py' ],
+        cmd=[ 'ros2', 'launch', 'ros2_odometry_twist_converter', 'mugimaru_sim.launch.py' ],
         output='screen',
     )
     exec_gyro=ExecuteProcess(
-        cmd=[ 'ros2', 'launch', 'gyro_odometer', 'nacky_gyro_odometer.launch.xml' ],
+        cmd=[ 'ros2', 'launch', 'gyro_odometer', 'sim_iscas.launch.xml' ],
         output='screen',
     )
     exec_map=ExecuteProcess(
-        cmd=[ 'ros2', 'launch', 'map_loader', 'nacky_test.launch.py' ],
+        cmd=[ 'ros2', 'launch', 'map_loader', 'sim_iscas.launch.py' ],
         output='screen',
     )
     exec_points=ExecuteProcess(
-        cmd=[ 'ros2', 'launch', 'pointcloud_preprocessor', 'nacky_test.launch.py' ],
+        cmd=[ 'ros2', 'launch', 'pointcloud_preprocessor', 'sim_iscas.launch.py' ],
         output='screen',
     )
     exec_ndt=ExecuteProcess(
-        cmd=[ 'ros2', 'launch', 'ndt_scan_matcher', 'nacky_test.launch.py' ],
+        cmd=[ 'ros2', 'launch', 'ndt_scan_matcher', 'sim_iscas.launch.py' ],
         output='screen',
     )
     exec_ekf=ExecuteProcess(
-        cmd=[ 'ros2', 'launch', 'ekf_localizer', 'ekf_localizer.launch.xml' ],
+        cmd=[ 'ros2', 'launch', 'ekf_localizer', 'sim_iscas.launch.py' ],
         output='screen',
     )
     exec_nav2=ExecuteProcess(
