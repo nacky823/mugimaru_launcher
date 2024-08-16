@@ -20,7 +20,7 @@ def generate_launch_description():
 
     rviz_config_file=os.path.join(
         get_package_share_directory('mugimaru_launcher'),
-        'config', 'sim_iscas.rviz'
+        'config', 'iscas_museum.rviz'
     )
     rviz2=Node(
         package='rviz2',
