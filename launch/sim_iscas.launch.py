@@ -4,19 +4,23 @@
 import os
 from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
+from launch.actions import DeclareLaunchArgument
 from launch.actions import ExecuteProcess
+from launch.substitutions import LaunchConfiguration
 from launch_ros.actions import Node
 
 
 def generate_launch_description():
 
-    home_path=os.path.expanduser('~')
-    costmap_path=os.path.join(home_path, 'maps', 'iscas_museum', 'iscas_museum_2d.yaml')
+    use_sim_time=LaunchConfiguration('use_sim_time')
+    declare_use_sim_time=DeclareLaunchArgument(
+        'use_sim_time',
+        default_value='True',
+    )
 
     rviz_config_file=os.path.join(
         get_package_share_directory('mugimaru_launcher'),
-        'config',
-        'sim_iscas.rviz',
+        'config', 'sim_iscas.rviz'
     )
     rviz2=Node(
         package='rviz2',
@@ -24,15 +28,15 @@ def generate_launch_description():
         name='mugimaru_rviz2',
         namespace='',
         arguments=['-d', rviz_config_file],
-        parameters=[{'use_sim_time': True}],
+        parameters=[{'use_sim_time': use_sim_time}],
         output='screen',
         prefix='xterm -e',
     )
 
-    world_to_map=Node(
+    define_world=Node(
         package='tf2_ros',
         executable='static_transform_publisher',
-        name='world_to_map',
+        name='define_world',
         namespace='',
         arguments=[
             '--x', '0', '--y', '0', '--z', '0',
@@ -83,15 +87,15 @@ def generate_launch_description():
         output='screen',
     )
     exec_nav2=ExecuteProcess(
-        cmd=[ 'ros2', 'launch', 'raspicat_navigation', 'raspicat_nav2.launch.py', f'map:={costmap_path}' ],
+        cmd=[ 'ros2', 'launch', 'mugimaru_navigation2', 'iscas_museum.launch.py' ],
         output='screen',
-        prefix='xterm -e',
     )
 
     ld=LaunchDescription()
 
+    ld.add_action(declare_use_sim_time)
     ld.add_action(rviz2)
-    ld.add_action(world_to_map)
+    ld.add_action(define_world)
     ld.add_action(define_livox_frame)
 
     ld.add_action(exec_gazebo)
