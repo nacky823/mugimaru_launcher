@@ -67,10 +67,6 @@ def generate_launch_description():
         prefix='xterm -e',
     )
 
-    exec_gazebo=ExecuteProcess(
-        cmd=['ros2', 'launch', 'raspicat_gazebo', 'raspicat_with_iscas_museum.launch.py', 'rviz:=false'],
-        output='screen',
-    )
     exec_twist=ExecuteProcess(
         cmd=['ros2', 'launch', 'ros2_odometry_twist_converter', 'mugimaru.launch.py',
             f'use_sim_time:={use_sim_time}'],
@@ -116,7 +112,6 @@ def generate_launch_description():
     ld.add_action(define_livox_frame)
     ld.add_action(rviz2)
 
-    ld.add_action(exec_gazebo)
     ld.add_action(exec_twist)
     ld.add_action(exec_gyro)
     ld.add_action(exec_map)
