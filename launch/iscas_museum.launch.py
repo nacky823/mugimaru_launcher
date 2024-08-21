@@ -3,7 +3,8 @@
 
 import os
 from launch import LaunchDescription
-from launch.actions import DeclareLaunchArgument, ExecuteProcess
+from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription
+from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import LaunchConfiguration, PathJoinSubstitution
 from launch_ros.actions import Node
 from launch_ros.substitutions import FindPackageShare
@@ -67,46 +68,87 @@ def generate_launch_description():
         prefix='xterm -e',
     )
 
-    exec_gazebo=ExecuteProcess(
-        cmd=['ros2', 'launch', 'raspicat_gazebo', 'raspicat_with_iscas_museum.launch.py', 'rviz:=false'],
-        output='screen',
+    gazebo_launch_path=PathJoinSubstitution([
+        FindPackageShare('raspicat_gazebo'),
+        'launch', 'raspicat_with_iscas_museum.launch.py'
+    ])
+    twist_launch_path=PathJoinSubstitution([
+        FindPackageShare('ros2_odometry_twist_converter'),
+        'launch', 'mugimaru.launch.py'
+    ])
+    gyro_launch_path=PathJoinSubstitution([
+        FindPackageShare('gyro_odometer'),
+        'launch', 'mugimaru.launch.py'
+    ])
+    map_launch_path=PathJoinSubstitution([
+        FindPackageShare('map_loader'),
+        'launch', 'mugimaru.launch.py'
+    ])
+    points_launch_path=PathJoinSubstitution([
+        FindPackageShare('pointcloud_preprocessor'),
+        'launch', 'mugimaru.launch.py'
+    ])
+    ndt_launch_path=PathJoinSubstitution([
+        FindPackageShare('ndt_scan_matcher'),
+        'launch', 'mugimaru.launch.py'
+    ])
+    ekf_launch_path=PathJoinSubstitution([
+        FindPackageShare('ekf_localizer'),
+        'launch', 'mugimaru.launch.py'
+    ])
+    nav2_launch_path=PathJoinSubstitution([
+        FindPackageShare('mugimaru_navigation2'),
+        'launch', 'mugimaru.launch.py'
+    ])
+
+    ld_gazebo=IncludeLaunchDescription(
+        PythonLaunchDescriptionSource(gazebo_launch_path),
+        launch_arguments={'rviz': False}.items(),
     )
-    exec_twist=ExecuteProcess(
-        cmd=['ros2', 'launch', 'ros2_odometry_twist_converter', 'mugimaru.launch.py',
-            f'use_sim_time:={use_sim_time}'],
-        output='screen',
+    ld_twist=IncludeLaunchDescription(
+        PythonLaunchDescriptionSource(twist_launch_path),
+        launch_arguments={'use_sim_time': use_sim_time}.items(),
     )
-    exec_gyro=ExecuteProcess(
-        cmd=['ros2', 'launch', 'gyro_odometer', 'mugimaru.launch.py',
-            f'use_sim_time:={use_sim_time}'],
-        output='screen',
+    ld_gyro=IncludeLaunchDescription(
+        PythonLaunchDescriptionSource(gyro_launch_path),
+        launch_arguments={'use_sim_time': use_sim_time}.items(),
     )
-    exec_map=ExecuteProcess(
-        cmd=['ros2', 'launch', 'map_loader', 'mugimaru.launch.py',
-            f'use_sim_time:={use_sim_time}', f'param_file_name:={param_file_name}',
-            f'map_path:={map_path_3d}'],
-        output='screen',
+    ld_map=IncludeLaunchDescription(
+        PythonLaunchDescriptionSource(map_launch_path),
+        launch_arguments={
+            'map_path': map_path_3d,
+            'param_file_name': param_file_name,
+            'use_sim_time': use_sim_time,
+        }.items(),
     )
-    exec_points=ExecuteProcess(
-        cmd=['ros2', 'launch', 'pointcloud_preprocessor', 'mugimaru.launch.py',
-            f'use_sim_time:={use_sim_time}', f'param_file_name:={param_file_name}'],
-        output='screen',
+    ld_points=IncludeLaunchDescription(
+        PythonLaunchDescriptionSource(points_launch_path),
+        launch_arguments={
+            'param_file_name': param_file_name,
+            'use_sim_time': use_sim_time,
+        }.items(),
     )
-    exec_ndt=ExecuteProcess(
-        cmd=['ros2', 'launch', 'ndt_scan_matcher', 'mugimaru.launch.py',
-            f'use_sim_time:={use_sim_time}', f'param_file_name:={param_file_name}'],
-        output='screen',
+    ld_ndt=IncludeLaunchDescription(
+        PythonLaunchDescriptionSource(ndt_launch_path),
+        launch_arguments={
+            'param_file_name': param_file_name,
+            'use_sim_time': use_sim_time,
+        }.items(),
     )
-    exec_ekf=ExecuteProcess(
-        cmd=['ros2', 'launch', 'ekf_localizer', 'mugimaru.launch.py',
-            f'use_sim_time:={use_sim_time}', f'param_file_name:={param_file_name}'],
-        output='screen',
+    ld_ekf=IncludeLaunchDescription(
+        PythonLaunchDescriptionSource(ekf_launch_path),
+        launch_arguments={
+            'param_file_name': param_file_name,
+            'use_sim_time': use_sim_time,
+        }.items(),
     )
-    exec_nav2=ExecuteProcess(
-        cmd=['ros2', 'launch', 'mugimaru_navigation2', 'mugimaru.launch.py',
-            f'use_sim_time:={use_sim_time}', f'param_file_name:={param_file_name}',
-            f'map_path:={map_path_2d}'],
-        output='screen',
+    ld_nav2=IncludeLaunchDescription(
+        PythonLaunchDescriptionSource(nav2_launch_path),
+        launch_arguments={
+            'map_path': map_path_2d,
+            'param_file_name': param_file_name,
+            'use_sim_time': use_sim_time,
+        }.items(),
     )
 
     ld=LaunchDescription()
@@ -116,13 +158,13 @@ def generate_launch_description():
     ld.add_action(define_livox_frame)
     ld.add_action(rviz2)
 
-    ld.add_action(exec_gazebo)
-    ld.add_action(exec_twist)
-    ld.add_action(exec_gyro)
-    ld.add_action(exec_map)
-    ld.add_action(exec_points)
-    ld.add_action(exec_ndt)
-    ld.add_action(exec_ekf)
-    ld.add_action(exec_nav2)
+    ld.add_action(ld_gazebo)
+    ld.add_action(ld_twist)
+    ld.add_action(ld_gyro)
+    ld.add_action(ld_map)
+    ld.add_action(ld_points)
+    ld.add_action(ld_ndt)
+    ld.add_action(ld_ekf)
+    ld.add_action(ld_nav2)
 
     return ld
