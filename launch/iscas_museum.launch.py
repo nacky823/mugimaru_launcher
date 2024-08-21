@@ -103,7 +103,7 @@ def generate_launch_description():
 
     ld_gazebo=IncludeLaunchDescription(
         PythonLaunchDescriptionSource(gazebo_launch_path),
-        launch_arguments={'rviz': False}.items(),
+        launch_arguments={'rviz': 'False'}.items(),
     )
     ld_twist=IncludeLaunchDescription(
         PythonLaunchDescriptionSource(twist_launch_path),
